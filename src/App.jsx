@@ -93,7 +93,10 @@ export default function DeckDiff() {
   }, [hoveredCard]);
 
   function handleMouseMove(e) {
-    setCursorPos({ x: e.clientX + 15, y: e.clientY + 15 });
+    const container = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - container.left) + 20; // Offset so the image doesn't cover the cursor
+    const y = e.clientY - container.top;
+    setCursorPos({ x, y });
   }
 
   return (
@@ -156,7 +159,7 @@ export default function DeckDiff() {
           src={cardImages[hoveredCard]}
           alt={hoveredCard}
           className="absolute pointer-events-none"
-          style={{ top: cursorPos.y, left: cursorPos.x, width: 150 }}
+          style={{ top: cursorPos.y, left: cursorPos.x, width: 200 }}
         />
       )}
     </div>
