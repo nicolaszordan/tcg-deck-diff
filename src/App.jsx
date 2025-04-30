@@ -31,15 +31,14 @@ export default function DeckDiff() {
     const diff = [];
     const newCardImages = {};
 
-    const fetchCardImage = (card) => {
-      return fetch(`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(card)}`)
-        .then((res) => res.json())
-        .then((data) => {
-          newCardImages[card] = data.image_uris?.normal || null;
-        })
-        .catch(() => {
-          newCardImages[card] = null;
-        });
+    const fetchCardImage = async (card) => {
+      try {
+        const res = await fetch(`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(card)}`);
+        const data = await res.json();
+        newCardImages[card] = data.image_uris?.normal || null;
+      } catch {
+        newCardImages[card] = null;
+      }
     };
 
     const fetchPromises = [];
