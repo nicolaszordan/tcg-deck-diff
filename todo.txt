@@ -1,0 +1,34 @@
+Change page title from default "Vite + React" to our own
+
+Change page icon to our own
+
+Fix issue where if the card number on the after decklist is lower than the before decklist, the card's that are still in both decks don't show up in the "show common cards" view
+
+Add a textbox to only show additions / removals
+
+Improve Performance by reducing the API spam
+    Only call APIs when the card is hovered
+    Display a spin thingy while we fetch the card
+    Cache cards that we fetch -- might not need as browser cache the data themselves...
+
+Improve Card Parsing
+    Handle cards that have additional infos (set names, card numbers, foil specifier) and ignore them
+    MtG:
+        Handle split / flip cards
+
+Show prices of cards in the miniatures
+
+Add support for other TCGs
+    Add a dropdown menu to select prefered TCG
+    Add support for Lorcana
+        Find API to fetch card miniatures and prices
+    Add support for Star Wars Unlimited
+        Find API to fetch card miniatures and prices
+//  Add support for Pokemon
+//      Find API to fetch card miniatures and prices
+//  Add support for Yu-Gi-Oh!
+//      Find API to fetch card miniatures and prices
+
+Implement Average Deck Builder Helper
+    User can add/push multiple decklists
+    ...
