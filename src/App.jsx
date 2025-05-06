@@ -139,20 +139,67 @@ export default function DeckDiff() {
           Show/Hide Cards in Common
         </label>
         <h2 className="text-lg font-semibold">Differences:</h2>
-        <ul className="mt-2 font-mono">
-          {differences.map((diff, index) => (
-            <li
-              key={index}
-              className={`${diff.type === "added" ? "text-green-500" : diff.type === "removed" ? "text-red-500" : showSimilarities ? "text-yellow-500" : "hidden"} ${cardImages[diff.card] === null ? "underline decoration-red-500" : ""}`}
-              onMouseEnter={() => setHoveredCard(diff.card)}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              {diff.type === "added" && `+ ${diff.count} ${diff.card}`}
-              {diff.type === "removed" && `- ${diff.count} ${diff.card}`}
-              {diff.type === "same" && showSimilarities && `= ${diff.count} ${diff.card}`}
-            </li>
-          ))}
-        </ul>
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="w-full md:w-1/2">
+            <h3 className="text-md font-semibold text-green-500">Added Cards:</h3>
+            <ul className="mt-2 font-mono">
+              {differences
+                .filter((diff) => diff.type === "added")
+                .map((diff, index) => (
+                  <li
+                    key={index}
+                    className={`${
+                      cardImages[diff.card] === null ? "underline decoration-red-500" : ""
+                    }`}
+                    onMouseEnter={() => setHoveredCard(diff.card)}
+                    onMouseLeave={() => setHoveredCard(null)}
+                  >
+                    + {diff.count} {diff.card}
+                  </li>
+                ))}
+            </ul>
+          </div>
+          <div className="w-full md:w-1/2">
+            <h3 className="text-md font-semibold text-red-500">Removed Cards:</h3>
+            <ul className="mt-2 font-mono">
+              {differences
+                .filter((diff) => diff.type === "removed")
+                .map((diff, index) => (
+                  <li
+                    key={index}
+                    className={`${
+                      cardImages[diff.card] === null ? "underline decoration-red-500" : ""
+                    }`}
+                    onMouseEnter={() => setHoveredCard(diff.card)}
+                    onMouseLeave={() => setHoveredCard(null)}
+                  >
+                    - {diff.count} {diff.card}
+                  </li>
+                ))}
+            </ul>
+          </div>
+        </div>
+        {showSimilarities && (
+          <div className="mt-4">
+            <h3 className="text-md font-semibold text-yellow-500">Cards in Common:</h3>
+            <ul className="mt-2 font-mono">
+              {differences
+                .filter((diff) => diff.type === "same")
+                .map((diff, index) => (
+                  <li
+                    key={index}
+                    className={`${
+                      cardImages[diff.card] === null ? "underline decoration-red-500" : ""
+                    }`}
+                    onMouseEnter={() => setHoveredCard(diff.card)}
+                    onMouseLeave={() => setHoveredCard(null)}
+                  >
+                    = {diff.count} {diff.card}
+                  </li>
+                ))}
+            </ul>
+          </div>
+        )}
       </div>
       {hoveredCard && cardImages[hoveredCard] && (
         <img
