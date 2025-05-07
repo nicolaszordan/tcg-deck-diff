@@ -29,19 +29,6 @@ export default function DeckDiff() {
     const parsedDeck1 = parseDeck(deck1);
     const parsedDeck2 = parseDeck(deck2);
     const diff = [];
-    const newCardImages = {};
-
-    const fetchCardImage = async (card) => {
-      try {
-        const res = await fetch(`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(card)}`);
-        const data = await res.json();
-        newCardImages[card] = data.image_uris?.normal || null;
-      } catch {
-        newCardImages[card] = null;
-      }
-    };
-
-    const fetchPromises = [];
 
     for (const card in parsedDeck1) {
       if (!parsedDeck2[card]) {
@@ -55,7 +42,6 @@ export default function DeckDiff() {
       } else {
         diff.push({ type: "same", card, count: parsedDeck1[card] });
       }
-      fetchPromises.push(fetchCardImage(card));
     }
 
     for (const card in parsedDeck2) {
@@ -68,10 +54,8 @@ export default function DeckDiff() {
           count: parsedDeck2[card] - parsedDeck1[card],
         });
       }
-      fetchPromises.push(fetchCardImage(card));
     }
 
-    Promise.all(fetchPromises).then(() => setCardImages(newCardImages));
     setDifferences(diff);
   }
 
@@ -97,6 +81,24 @@ export default function DeckDiff() {
     const x = (e.clientX - container.left) + 20; // Offset so the image doesn't cover the cursor
     const y = e.clientY - container.top;
     setCursorPos({ x, y });
+  }
+
+  async function fetchCardImageOnHover(card) {
+    if (!cardImages[card]) {
+      try {
+        const res = await fetch(`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(card)}`);
+        const data = await res.json();
+        setCardImages((prev) => ({
+          ...prev,
+          [card]: data.image_uris?.normal || null,
+        }));
+      } catch {
+        setCardImages((prev) => ({
+          ...prev,
+          [card]: null,
+        }));
+      }
+    }
   }
 
   return (
@@ -151,7 +153,10 @@ export default function DeckDiff() {
                     className={`${
                       cardImages[diff.card] === null ? "underline decoration-red-500" : ""
                     }`}
-                    onMouseEnter={() => setHoveredCard(diff.card)}
+                    onMouseEnter={() => {
+                      setHoveredCard(diff.card);
+                      fetchCardImageOnHover(diff.card);
+                    }}
                     onMouseLeave={() => setHoveredCard(null)}
                   >
                     <span className="text-green-500">+ {diff.count} {diff.card}</span>
@@ -170,7 +175,10 @@ export default function DeckDiff() {
                     className={`${
                       cardImages[diff.card] === null ? "underline decoration-red-500" : ""
                     }`}
-                    onMouseEnter={() => setHoveredCard(diff.card)}
+                    onMouseEnter={() => {
+                      setHoveredCard(diff.card);
+                      fetchCardImageOnHover(diff.card);
+                    }}
                     onMouseLeave={() => setHoveredCard(null)}
                   >
                     <span className="text-red-500">- {diff.count} {diff.card}</span>
@@ -191,7 +199,10 @@ export default function DeckDiff() {
                     className={`${
                       cardImages[diff.card] === null ? "underline decoration-red-500" : ""
                     }`}
-                    onMouseEnter={() => setHoveredCard(diff.card)}
+                    onMouseEnter={() => {
+                      setHoveredCard(diff.card);
+                      fetchCardImageOnHover(diff.card);
+                    }}
                     onMouseLeave={() => setHoveredCard(null)}
                   >
                     <span className="text-yellow-500">= {diff.count} {diff.card}</span>
