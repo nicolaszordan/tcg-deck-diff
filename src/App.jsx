@@ -143,7 +143,9 @@ export default function DeckDiff() {
         <h2 className="text-lg font-semibold">Differences:</h2>
         <div className="flex flex-col md:flex-row gap-4">
           <div className="w-full md:w-1/2">
-            <h3 className="text-md font-semibold text-green-500">Added Cards:</h3>
+            <h3 className="text-md font-semibold text-green-500">
+              Added Cards ({differences.filter((diff) => diff.type === "added").reduce((sum, diff) => sum + diff.count, 0)}):
+            </h3>
             <ul className="mt-2 font-mono">
               {differences
                 .filter((diff) => diff.type === "added")
@@ -165,7 +167,9 @@ export default function DeckDiff() {
             </ul>
           </div>
           <div className="w-full md:w-1/2">
-            <h3 className="text-md font-semibold text-red-500">Removed Cards:</h3>
+            <h3 className="text-md font-semibold text-red-500">
+              Removed Cards ({differences.filter((diff) => diff.type === "removed").reduce((sum, diff) => sum + diff.count, 0)}):
+            </h3>
             <ul className="mt-2 font-mono">
               {differences
                 .filter((diff) => diff.type === "removed")
@@ -189,7 +193,9 @@ export default function DeckDiff() {
         </div>
         {showSimilarities && (
           <div className="mt-4">
-            <h3 className="text-md font-semibold text-yellow-500">Cards in Common:</h3>
+            <h3 className="text-md font-semibold text-yellow-500">
+              Cards in Common ({differences.filter((diff) => diff.type === "same").reduce((sum, diff) => sum + diff.count, 0)}):
+            </h3>
             <ul className="mt-2 font-mono">
               {differences
                 .filter((diff) => diff.type === "same")
