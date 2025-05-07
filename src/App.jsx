@@ -154,7 +154,7 @@ export default function DeckDiff() {
                     onMouseEnter={() => setHoveredCard(diff.card)}
                     onMouseLeave={() => setHoveredCard(null)}
                   >
-                    + {diff.count} {diff.card}
+                    <span className="text-green-500">+ {diff.count} {diff.card}</span>
                   </li>
                 ))}
             </ul>
@@ -173,7 +173,7 @@ export default function DeckDiff() {
                     onMouseEnter={() => setHoveredCard(diff.card)}
                     onMouseLeave={() => setHoveredCard(null)}
                   >
-                    - {diff.count} {diff.card}
+                    <span className="text-red-500">- {diff.count} {diff.card}</span>
                   </li>
                 ))}
             </ul>
@@ -194,7 +194,7 @@ export default function DeckDiff() {
                     onMouseEnter={() => setHoveredCard(diff.card)}
                     onMouseLeave={() => setHoveredCard(null)}
                   >
-                    = {diff.count} {diff.card}
+                    <span className="text-yellow-500">= {diff.count} {diff.card}</span>
                   </li>
                 ))}
             </ul>
