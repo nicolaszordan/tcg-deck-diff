@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { RefreshCcw } from "lucide-react";
 
+const CARD_MINIATURE_WIDTH = 200; // Width of the card miniature
+const CARD_MINIATURE_HEIGHT = 280; // Height of the card miniature
+
 export default function DeckDiff() {
   const [deck1, setDeck1] = useState("");
   const [deck2, setDeck2] = useState("");
@@ -78,15 +81,29 @@ export default function DeckDiff() {
 
   function handleMouseMove(e) {
     const container = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - container.left) + 20; // Offset so the image doesn't cover the cursor
+    const x = e.clientX - container.left + 20; // Offset so the image doesn't cover the cursor
     const y = e.clientY - container.top;
-    setCursorPos({ x, y });
+
+    const windowHeight = window.innerHeight;
+    const offset = 10; // Additional offset for spacing
+
+    // Check if there's enough space below the cursor for the card image
+    const adjustedY =
+      e.clientY + CARD_MINIATURE_HEIGHT + offset > windowHeight
+        ? e.clientY - CARD_MINIATURE_HEIGHT - offset
+        : e.clientY + offset;
+
+    setCursorPos({ x, y: adjustedY - container.top });
   }
 
   async function fetchCardImageOnHover(card) {
     if (!cardImages[card]) {
       try {
-        const res = await fetch(`https://api.scryfall.com/cards/named?exact=${encodeURIComponent(card)}`);
+        const res = await fetch(
+          `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(
+            card
+          )}`
+        );
         const data = await res.json();
         setCardImages((prev) => ({
           ...prev,
@@ -102,7 +119,10 @@ export default function DeckDiff() {
   }
 
   return (
-    <div className="p-4 max-w-4xl mx-auto relative" onMouseMove={handleMouseMove}>
+    <div
+      className="p-4 max-w-4xl mx-auto relative"
+      onMouseMove={handleMouseMove}
+    >
       <h1 className="text-xl font-bold mb-4">TCG Deck List Comparator</h1>
       <div className="flex flex-col md:flex-row gap-4">
         <div className="w-full md:w-1/2">
@@ -127,7 +147,10 @@ export default function DeckDiff() {
         </div>
       </div>
       <div className="flex gap-4 mt-4">
-        <button className="bg-gray-500 text-white p-2 rounded flex items-center gap-2" onClick={swapDecks}>
+        <button
+          className="bg-gray-500 text-white p-2 rounded flex items-center gap-2"
+          onClick={swapDecks}
+        >
           <RefreshCcw size={16} /> Swap Decks
         </button>
       </div>
@@ -144,7 +167,11 @@ export default function DeckDiff() {
         <div className="flex flex-col md:flex-row gap-4">
           <div className="w-full md:w-1/2">
             <h3 className="text-md font-semibold text-green-500">
-              Added Cards ({differences.filter((diff) => diff.type === "added").reduce((sum, diff) => sum + diff.count, 0)}):
+              Added Cards (
+              {differences
+                .filter((diff) => diff.type === "added")
+                .reduce((sum, diff) => sum + diff.count, 0)}
+              ):
             </h3>
             <ul className="mt-2 font-mono">
               {differences
@@ -153,7 +180,9 @@ export default function DeckDiff() {
                   <li
                     key={index}
                     className={`${
-                      cardImages[diff.card] === null ? "underline decoration-red-500" : ""
+                      cardImages[diff.card] === null
+                        ? "underline decoration-red-500"
+                        : ""
                     }`}
                     onMouseEnter={() => {
                       setHoveredCard(diff.card);
@@ -161,14 +190,20 @@ export default function DeckDiff() {
                     }}
                     onMouseLeave={() => setHoveredCard(null)}
                   >
-                    <span className="text-green-500">+ {diff.count} {diff.card}</span>
+                    <span className="text-green-500">
+                      + {diff.count} {diff.card}
+                    </span>
                   </li>
                 ))}
             </ul>
           </div>
           <div className="w-full md:w-1/2">
             <h3 className="text-md font-semibold text-red-500">
-              Removed Cards ({differences.filter((diff) => diff.type === "removed").reduce((sum, diff) => sum + diff.count, 0)}):
+              Removed Cards (
+              {differences
+                .filter((diff) => diff.type === "removed")
+                .reduce((sum, diff) => sum + diff.count, 0)}
+              ):
             </h3>
             <ul className="mt-2 font-mono">
               {differences
@@ -177,7 +212,9 @@ export default function DeckDiff() {
                   <li
                     key={index}
                     className={`${
-                      cardImages[diff.card] === null ? "underline decoration-red-500" : ""
+                      cardImages[diff.card] === null
+                        ? "underline decoration-red-500"
+                        : ""
                     }`}
                     onMouseEnter={() => {
                       setHoveredCard(diff.card);
@@ -185,7 +222,9 @@ export default function DeckDiff() {
                     }}
                     onMouseLeave={() => setHoveredCard(null)}
                   >
-                    <span className="text-red-500">- {diff.count} {diff.card}</span>
+                    <span className="text-red-500">
+                      - {diff.count} {diff.card}
+                    </span>
                   </li>
                 ))}
             </ul>
@@ -194,7 +233,11 @@ export default function DeckDiff() {
         {showSimilarities && (
           <div className="mt-4">
             <h3 className="text-md font-semibold text-yellow-500">
-              Cards in Common ({differences.filter((diff) => diff.type === "same").reduce((sum, diff) => sum + diff.count, 0)}):
+              Cards in Common (
+              {differences
+                .filter((diff) => diff.type === "same")
+                .reduce((sum, diff) => sum + diff.count, 0)}
+              ):
             </h3>
             <ul className="mt-2 font-mono">
               {differences
@@ -203,7 +246,9 @@ export default function DeckDiff() {
                   <li
                     key={index}
                     className={`${
-                      cardImages[diff.card] === null ? "underline decoration-red-500" : ""
+                      cardImages[diff.card] === null
+                        ? "underline decoration-red-500"
+                        : ""
                     }`}
                     onMouseEnter={() => {
                       setHoveredCard(diff.card);
@@ -211,7 +256,9 @@ export default function DeckDiff() {
                     }}
                     onMouseLeave={() => setHoveredCard(null)}
                   >
-                    <span className="text-yellow-500">= {diff.count} {diff.card}</span>
+                    <span className="text-yellow-500">
+                      = {diff.count} {diff.card}
+                    </span>
                   </li>
                 ))}
             </ul>
@@ -223,7 +270,12 @@ export default function DeckDiff() {
           src={cardImages[hoveredCard]}
           alt={hoveredCard}
           className="absolute pointer-events-none"
-          style={{ top: cursorPos.y, left: cursorPos.x, width: 200 }}
+          style={{
+            top: cursorPos.y,
+            left: cursorPos.x,
+            width: CARD_MINIATURE_WIDTH,
+            height: CARD_MINIATURE_HEIGHT,
+          }}
         />
       )}
     </div>
