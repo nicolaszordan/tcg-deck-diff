@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { RefreshCcw } from "lucide-react";
+import './App.css';
 
 const CARD_MINIATURE_WIDTH = 200; // Width of the card miniature
 const CARD_MINIATURE_HEIGHT = 280; // Height of the card miniature
@@ -212,9 +213,8 @@ export default function DeckDiff() {
                     }}
                     onMouseLeave={() => setHoveredCard(null)}
                   >
-                    <span className="text-green-500">
-                      + {diff.count} {diff.card}
-                    </span>
+                    <span className="text-green-500 unselectable">+ </span>
+                    <span className="text-green-500">{diff.count} {diff.card}</span>
                   </li>
                 ))}
             </ul>
@@ -244,9 +244,8 @@ export default function DeckDiff() {
                     }}
                     onMouseLeave={() => setHoveredCard(null)}
                   >
-                    <span className="text-red-500">
-                      - {diff.count} {diff.card}
-                    </span>
+                    <span className="text-red-500 unselectable">- </span>
+                    <span className="text-red-500">{diff.count} {diff.card}</span>
                   </li>
                 ))}
             </ul>
@@ -278,9 +277,8 @@ export default function DeckDiff() {
                     }}
                     onMouseLeave={() => setHoveredCard(null)}
                   >
-                    <span className="text-yellow-500">
-                      = {diff.count} {diff.card}
-                    </span>
+                    <span className="text-yellow-500 unselectable">= </span>
+                    <span className="text-yellow-500">{diff.count} {diff.card}</span>
                   </li>
                 ))}
             </ul>
