@@ -38,14 +38,18 @@ export default function DeckDiff() {
     for (const card in parsedDeck1) {
       if (!parsedDeck2[card]) {
         diff.push({ type: "removed", card, count: parsedDeck1[card] });
-      } else if (parsedDeck1[card] > parsedDeck2[card]) {
-        diff.push({
-          type: "removed",
-          card,
-          count: parsedDeck1[card] - parsedDeck2[card],
-        });
       } else {
-        diff.push({ type: "same", card, count: parsedDeck1[card] });
+        const commonCount = Math.min(parsedDeck1[card], parsedDeck2[card]);
+        if (commonCount > 0) {
+          diff.push({ type: "same", card, count: commonCount });
+        }
+        if (parsedDeck1[card] > parsedDeck2[card]) {
+          diff.push({
+            type: "removed",
+            card,
+            count: parsedDeck1[card] - parsedDeck2[card],
+          });
+        }
       }
     }
 
