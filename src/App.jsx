@@ -12,6 +12,7 @@ export default function DeckDiff() {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [cardImages, setCardImages] = useState({});
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
+  const [currency, setCurrency] = useState("eur"); // Default to EUR
 
   function parseDeck(deck) {
     return deck
@@ -96,7 +97,7 @@ export default function DeckDiff() {
     setCursorPos({ x, y: adjustedY - container.top });
   }
 
-  async function fetchCardImageOnHover(card) {
+  async function fetchCardInfosOnHover(card) {
     if (!cardImages[card]) {
       try {
         const res = await fetch(
@@ -107,12 +108,18 @@ export default function DeckDiff() {
         const data = await res.json();
         setCardImages((prev) => ({
           ...prev,
-          [card]: data.image_uris?.normal || null,
+          [card]: {
+            image: data.image_uris?.normal || null,
+            prices: {
+              eur: data.prices?.eur || "N/A",
+              usd: data.prices?.usd || "N/A",
+            },
+          },
         }));
       } catch {
         setCardImages((prev) => ({
           ...prev,
-          [card]: null,
+          [card]: { image: null, prices: { eur: "N/A", usd: "N/A" } },
         }));
       }
     }
@@ -146,13 +153,24 @@ export default function DeckDiff() {
           ></textarea>
         </div>
       </div>
-      <div className="flex gap-4 mt-4">
+      <div className="flex justify-between items-center gap-4 mt-4">
         <button
           className="bg-gray-500 text-white p-2 rounded flex items-center gap-2"
           onClick={swapDecks}
         >
           <RefreshCcw size={16} /> Swap Decks
         </button>
+        <label className="flex items-center gap-2">
+          <span>Currency:</span>
+          <select
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value)}
+            className="p-2 border rounded"
+          >
+            <option value="eur">🇪🇺 EUR</option> {/* European Union flag */}
+            <option value="usd">🇺🇸 USD</option> {/* United States flag */}
+          </select>
+        </label>
       </div>
       <div className="mt-4">
         <label className="mb-2 flex items-center gap-2">
@@ -186,7 +204,7 @@ export default function DeckDiff() {
                     }`}
                     onMouseEnter={() => {
                       setHoveredCard(diff.card);
-                      fetchCardImageOnHover(diff.card);
+                      fetchCardInfosOnHover(diff.card);
                     }}
                     onMouseLeave={() => setHoveredCard(null)}
                   >
@@ -218,7 +236,7 @@ export default function DeckDiff() {
                     }`}
                     onMouseEnter={() => {
                       setHoveredCard(diff.card);
-                      fetchCardImageOnHover(diff.card);
+                      fetchCardInfosOnHover(diff.card);
                     }}
                     onMouseLeave={() => setHoveredCard(null)}
                   >
@@ -252,7 +270,7 @@ export default function DeckDiff() {
                     }`}
                     onMouseEnter={() => {
                       setHoveredCard(diff.card);
-                      fetchCardImageOnHover(diff.card);
+                      fetchCardInfosOnHover(diff.card);
                     }}
                     onMouseLeave={() => setHoveredCard(null)}
                   >
@@ -265,18 +283,33 @@ export default function DeckDiff() {
           </div>
         )}
       </div>
-      {hoveredCard && cardImages[hoveredCard] && (
-        <img
-          src={cardImages[hoveredCard]}
-          alt={hoveredCard}
+      {hoveredCard && cardImages[hoveredCard]?.image && (
+        <div
           className="absolute pointer-events-none"
           style={{
             top: cursorPos.y,
             left: cursorPos.x,
             width: CARD_MINIATURE_WIDTH,
-            height: CARD_MINIATURE_HEIGHT,
           }}
-        />
+        >
+          <img
+            src={cardImages[hoveredCard].image}
+            alt={hoveredCard}
+            style={{
+              width: CARD_MINIATURE_WIDTH,
+              height: CARD_MINIATURE_HEIGHT,
+            }}
+          />
+          <div
+            className="text-center bg-white text-black p-1 rounded shadow"
+            style={{
+              width: CARD_MINIATURE_WIDTH,
+            }}
+          >
+            Price: {currency === "eur" ? "€" : "$"}
+            {cardImages[hoveredCard]?.prices[currency]}
+          </div>
+        </div>
       )}
     </div>
   );
