@@ -153,15 +153,13 @@ export default function DeckDiff() {
           ></textarea>
         </div>
       </div>
-      <div className="flex gap-4 mt-4">
+      <div className="flex justify-between items-center gap-4 mt-4">
         <button
           className="bg-gray-500 text-white p-2 rounded flex items-center gap-2"
           onClick={swapDecks}
         >
           <RefreshCcw size={16} /> Swap Decks
         </button>
-      </div>
-      <div className="flex justify-end mb-4">
         <label className="flex items-center gap-2">
           <span>Currency:</span>
           <select
