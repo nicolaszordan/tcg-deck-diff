@@ -99,16 +99,20 @@ export default function DeckDiff() {
 
   async function fetchCardInfosOnHover(card) {
     if (!cardImages[card]) {
+      setCardImages((prev) => ({
+        ...prev,
+        [card]: { loading: true, image: null, prices: { eur: "N/A", usd: "N/A" } },
+      }));
+
       try {
         const res = await fetch(
-          `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(
-            card
-          )}`
+          `https://api.scryfall.com/cards/named?exact=${encodeURIComponent(card)}`
         );
         const data = await res.json();
         setCardImages((prev) => ({
           ...prev,
           [card]: {
+            loading: false,
             image: data.image_uris?.normal || null,
             prices: {
               eur: data.prices?.eur || "N/A",
@@ -119,7 +123,7 @@ export default function DeckDiff() {
       } catch {
         setCardImages((prev) => ({
           ...prev,
-          [card]: { image: null, prices: { eur: "N/A", usd: "N/A" } },
+          [card]: { loading: false, image: null, prices: { eur: "N/A", usd: "N/A" } },
         }));
       }
     }
@@ -283,7 +287,7 @@ export default function DeckDiff() {
           </div>
         )}
       </div>
-      {hoveredCard && cardImages[hoveredCard]?.image && (
+      {hoveredCard && (
         <div
           className="absolute pointer-events-none"
           style={{
@@ -292,23 +296,39 @@ export default function DeckDiff() {
             width: CARD_MINIATURE_WIDTH,
           }}
         >
-          <img
-            src={cardImages[hoveredCard].image}
-            alt={hoveredCard}
-            style={{
-              width: CARD_MINIATURE_WIDTH,
-              height: CARD_MINIATURE_HEIGHT,
-            }}
-          />
-          <div
-            className="text-center bg-white text-black p-1 rounded shadow"
-            style={{
-              width: CARD_MINIATURE_WIDTH,
-            }}
-          >
-            Price: {currency === "eur" ? "€" : "$"}
-            {cardImages[hoveredCard]?.prices[currency]}
-          </div>
+          {cardImages[hoveredCard]?.loading ? (
+            <div
+              className="flex items-center justify-center bg-gray-200"
+              style={{
+                width: CARD_MINIATURE_WIDTH,
+                height: CARD_MINIATURE_HEIGHT,
+              }}
+            >
+              <span className="loader"></span> {/* Add a spinner here */}
+            </div>
+          ) : (
+            cardImages[hoveredCard]?.image && (
+              <>
+                <img
+                  src={cardImages[hoveredCard].image}
+                  alt={hoveredCard}
+                  style={{
+                    width: CARD_MINIATURE_WIDTH,
+                    height: CARD_MINIATURE_HEIGHT,
+                  }}
+                />
+                <div
+                  className="text-center bg-white text-black p-1 rounded shadow"
+                  style={{
+                    width: CARD_MINIATURE_WIDTH,
+                  }}
+                >
+                  Price: {currency === "eur" ? "€" : "$"}
+                  {cardImages[hoveredCard]?.prices[currency]}
+                </div>
+              </>
+            )
+          )}
         </div>
       )}
     </div>
