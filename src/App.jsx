@@ -311,13 +311,31 @@ export default function DeckDiff() {
         </div>
         {showSimilarities && (
           <div className="mt-4">
-            <h3 className="text-md font-semibold text-yellow-500">
-              Cards in Common (
-              {differences
-                .filter((diff) => diff.type === "same")
-                .reduce((sum, diff) => sum + diff.count, 0)}
-              ):
-            </h3>
+            <div className="flex justify-between items-center">
+              <h3 className="text-md font-semibold text-yellow-500">
+                Cards in Common (
+                {differences
+                  .filter((diff) => diff.type === "same")
+                  .reduce((sum, diff) => sum + diff.count, 0)}
+                ):
+              </h3>
+              <button
+                className="bg-gray-500 text-white p-1 rounded text-sm flex items-center"
+                onClick={() => {
+                  const commonCards = differences
+                    .filter((diff) => diff.type === "same")
+                    .map((diff) => `${diff.count} ${diff.card}`)
+                    .join("\n");
+
+                  navigator.clipboard.writeText(commonCards).then(() => {
+                    showNotification("Cards in common copied to clipboard!");
+                  });
+                }}
+                title="Copy cards in common to clipboard" // Tooltip
+              >
+                <Clipboard size={16} /> {/* Clipboard icon */}
+              </button>
+            </div>
             <ul className="mt-2 font-mono">
               {differences
                 .filter((diff) => diff.type === "same")
