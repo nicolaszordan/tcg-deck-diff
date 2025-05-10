@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { RefreshCcw } from "lucide-react";
+import { RefreshCcw, Clipboard } from "lucide-react";
 import './App.css';
 
 const CARD_MINIATURE_WIDTH = 200; // Width of the card miniature
@@ -14,6 +14,8 @@ export default function DeckDiff() {
   const [cardImages, setCardImages] = useState({});
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [currency, setCurrency] = useState("eur"); // Default to EUR
+  const [notification, setNotification] = useState(""); // Notification message
+  const [fadeOut, setFadeOut] = useState(false); // Controls fade-out effect
 
   function parseDeck(deck) {
     return deck
@@ -134,11 +136,45 @@ export default function DeckDiff() {
     }
   }
 
+  function showNotification(message) {
+    setNotification(message);
+    setFadeOut(false); // Reset fade-out state
+    setTimeout(() => setFadeOut(true), 2500); // Start fade-out after 2.5 seconds
+    setTimeout(() => setNotification(""), 3000); // Clear notification after 3 seconds
+  }
+
+  function copyAddedCardsToClipboard() {
+    const addedCards = differences
+      .filter((diff) => diff.type === "added")
+      .map((diff) => `${diff.count} ${diff.card}`)
+      .join("\n");
+
+    navigator.clipboard.writeText(addedCards).then(() => {
+      showNotification("Added cards copied to clipboard!");
+    });
+  }
+
+  function copyRemovedCardsToClipboard() {
+    const removedCards = differences
+      .filter((diff) => diff.type === "removed")
+      .map((diff) => `${diff.count} ${diff.card}`)
+      .join("\n");
+
+    navigator.clipboard.writeText(removedCards).then(() => {
+      showNotification("Removed cards copied to clipboard!");
+    });
+  }
+
   return (
     <div
       className="p-4 max-w-4xl mx-auto relative"
       onMouseMove={handleMouseMove}
     >
+      {notification && ( // Display notification if it exists
+        <div className={`absolute top-4 right-4 bg-green-500 text-white p-2 rounded shadow transition-opacity duration-500 ${fadeOut ? "opacity-0" : "opacity-100"}`}>
+          {notification}
+        </div>
+      )}
       <h1 className="text-xl font-bold mb-4">TCG Deck List Comparator</h1>
       <div className="flex flex-col md:flex-row gap-4">
         <div className="w-full md:w-1/2">
@@ -193,13 +229,22 @@ export default function DeckDiff() {
         <h2 className="text-lg font-semibold">Differences:</h2>
         <div className="flex flex-col md:flex-row gap-4">
           <div className="w-full md:w-1/2">
-            <h3 className="text-md font-semibold text-green-500">
-              Added Cards (
-              {differences
-                .filter((diff) => diff.type === "added")
-                .reduce((sum, diff) => sum + diff.count, 0)}
-              ):
-            </h3>
+            <div className="flex justify-between items-center">
+              <h3 className="text-md font-semibold text-green-500">
+                Added Cards (
+                {differences
+                  .filter((diff) => diff.type === "added")
+                  .reduce((sum, diff) => sum + diff.count, 0)}
+                ):
+              </h3>
+              <button
+                className="bg-gray-500 text-white p-1 rounded text-sm flex items-center"
+                onClick={copyAddedCardsToClipboard}
+                title="Copy added cards to clipboard" // Tooltip
+              >
+                <Clipboard size={16} /> {/* Clipboard icon */}
+              </button>
+            </div>
             <ul className="mt-2 font-mono">
               {differences
                 .filter((diff) => diff.type === "added")
@@ -224,13 +269,22 @@ export default function DeckDiff() {
             </ul>
           </div>
           <div className="w-full md:w-1/2">
-            <h3 className="text-md font-semibold text-red-500">
-              Removed Cards (
-              {differences
-                .filter((diff) => diff.type === "removed")
-                .reduce((sum, diff) => sum + diff.count, 0)}
-              ):
-            </h3>
+            <div className="flex justify-between items-center">
+              <h3 className="text-md font-semibold text-red-500">
+                Removed Cards (
+                {differences
+                  .filter((diff) => diff.type === "removed")
+                  .reduce((sum, diff) => sum + diff.count, 0)}
+                ):
+              </h3>
+              <button
+                className="bg-gray-500 text-white p-1 rounded text-sm flex items-center"
+                onClick={copyRemovedCardsToClipboard}
+                title="Copy removed cards to clipboard" // Tooltip
+              >
+                <Clipboard size={16} /> {/* Clipboard icon */}
+              </button>
+            </div>
             <ul className="mt-2 font-mono">
               {differences
                 .filter((diff) => diff.type === "removed")
