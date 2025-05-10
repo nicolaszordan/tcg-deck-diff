@@ -4,6 +4,8 @@ import './App.css';
 
 const CARD_MINIATURE_WIDTH = 200; // Width of the card miniature
 const CARD_MINIATURE_HEIGHT = 280; // Height of the card miniature
+const CARD_METADATA_HEIGHT = 40; // Height of the card metadata (price, etc.)
+const CARD_MINIATURE_TOTAL_HEIGHT = CARD_MINIATURE_HEIGHT + CARD_METADATA_HEIGHT; // Total height of the card miniature with metadata
 
 export default function DeckDiff() {
   const [deck1, setDeck1] = useState("");
@@ -93,12 +95,12 @@ export default function DeckDiff() {
     const y = e.clientY - container.top;
 
     const windowHeight = window.innerHeight;
-    const offset = 10; // Additional offset for spacing
+    const offset = 10; // Additional offset for spacing and to have a little extra space before the edge of the screen
 
-    // Check if there's enough space below the cursor for the card image
+    // Check if there's enough space below the cursor for the card image and price
     const adjustedY =
-      e.clientY + CARD_MINIATURE_HEIGHT + offset > windowHeight
-        ? e.clientY - CARD_MINIATURE_HEIGHT - offset
+      e.clientY + CARD_MINIATURE_TOTAL_HEIGHT + offset > windowHeight
+        ? e.clientY - CARD_MINIATURE_TOTAL_HEIGHT - offset
         : e.clientY + offset;
 
     setCursorPos({ x, y: adjustedY - container.top });
