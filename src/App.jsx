@@ -25,10 +25,13 @@ export default function DeckDiff() {
       .map((line) => line.trim())
       .filter((line) => line !== "")
       .reduce((acc, line) => {
-        const match = line.match(/(\d+)\s+(.+)/);
+        // Match: count, card name, ignore set code, number, foil, etc.
+        // Example: 2 Lightning Bolt (M11) 150 *F*  -> count=2, name=Lightning Bolt
+        const match = line.match(/^(\d+)\s+([^(]+?)(?:\s+\(.*|\s+\*.*|$)/);
         if (match) {
           const [, count, name] = match;
-          acc[name] = (acc[name] || 0) + parseInt(count, 10);
+          const cleanName = name.trim();
+          acc[cleanName] = (acc[cleanName] || 0) + parseInt(count, 10);
         }
         return acc;
       }, {});
