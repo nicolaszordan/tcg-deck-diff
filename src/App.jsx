@@ -274,50 +274,6 @@ export default function DeckDiff() {
         <div className="flex flex-col md:flex-row gap-4">
           <div className="w-full md:w-1/2">
             <div className="flex justify-between items-center">
-              <h3 className="text-md font-semibold text-green-500">
-                Added Cards (
-                {differences
-                  .filter((diff) => diff.type === "added")
-                  .reduce((sum, diff) => sum + diff.count, 0)}
-                ):
-              </h3>
-              <button
-                className="bg-gray-500 text-white p-1 rounded text-sm flex items-center"
-                onClick={copyAddedCardsToClipboard}
-                title="Copy added cards to clipboard" // Tooltip
-              >
-                <Clipboard size={16} /> {/* Clipboard icon */}
-              </button>
-            </div>
-            {CARD_TYPE_ORDER.map((group) => {
-              const addedGroups = groupByType(differences.filter((diff) => diff.type === "added"));
-              return (
-                addedGroups[group] && addedGroups[group].length > 0 && (
-                  <div key={group}>
-                    <h4 className="font-semibold mt-2 unselectable">{group} ({addedGroups[group].length}):</h4>
-                    <ul className="font-mono">
-                      {addedGroups[group].map((diff, index) => (
-                        <li
-                          key={index}
-                          className={`${cardImages[diff.card] === null ? "underline decoration-red-500" : ""}`}
-                          onMouseEnter={() => {
-                            setHoveredCard(diff.card);
-                            fetchCardInfosOnHover(diff.card);
-                          }}
-                          onMouseLeave={() => setHoveredCard(null)}
-                        >
-                          <span className="text-green-500 unselectable">+ </span>
-                          <span className="text-green-500">{diff.count} {diff.card}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )
-              );
-            })}
-          </div>
-          <div className="w-full md:w-1/2">
-            <div className="flex justify-between items-center">
               <h3 className="text-md font-semibold text-red-500">
                 Removed Cards (
                 {differences
@@ -352,6 +308,50 @@ export default function DeckDiff() {
                         >
                           <span className="text-red-500 unselectable">- </span>
                           <span className="text-red-500">{diff.count} {diff.card}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )
+              );
+            })}
+          </div>
+          <div className="w-full md:w-1/2">
+            <div className="flex justify-between items-center">
+              <h3 className="text-md font-semibold text-green-500">
+                Added Cards (
+                {differences
+                  .filter((diff) => diff.type === "added")
+                  .reduce((sum, diff) => sum + diff.count, 0)}
+                ):
+              </h3>
+              <button
+                className="bg-gray-500 text-white p-1 rounded text-sm flex items-center"
+                onClick={copyAddedCardsToClipboard}
+                title="Copy added cards to clipboard" // Tooltip
+              >
+                <Clipboard size={16} /> {/* Clipboard icon */}
+              </button>
+            </div>
+            {CARD_TYPE_ORDER.map((group) => {
+              const addedGroups = groupByType(differences.filter((diff) => diff.type === "added"));
+              return (
+                addedGroups[group] && addedGroups[group].length > 0 && (
+                  <div key={group}>
+                    <h4 className="font-semibold mt-2 unselectable">{group} ({addedGroups[group].length}):</h4>
+                    <ul className="font-mono">
+                      {addedGroups[group].map((diff, index) => (
+                        <li
+                          key={index}
+                          className={`${cardImages[diff.card] === null ? "underline decoration-red-500" : ""}`}
+                          onMouseEnter={() => {
+                            setHoveredCard(diff.card);
+                            fetchCardInfosOnHover(diff.card);
+                          }}
+                          onMouseLeave={() => setHoveredCard(null)}
+                        >
+                          <span className="text-green-500 unselectable">+ </span>
+                          <span className="text-green-500">{diff.count} {diff.card}</span>
                         </li>
                       ))}
                     </ul>
