@@ -7,6 +7,16 @@ const CARD_MINIATURE_HEIGHT = 280; // Height of the card miniature
 const CARD_METADATA_HEIGHT = 40; // Height of the card metadata (price, etc.)
 const CARD_MINIATURE_TOTAL_HEIGHT = CARD_MINIATURE_HEIGHT + CARD_METADATA_HEIGHT; // Total height of the card miniature with metadata
 
+const CARD_TYPE_ORDER = [
+  "Creatures",
+  "Instants",
+  "Sorceries",
+  "Artifacts",
+  "Enchantments",
+  "Lands",
+  "Other"
+];
+
 export default function DeckDiff() {
   const [deck1, setDeck1] = useState("");
   const [deck2, setDeck2] = useState("");
@@ -92,6 +102,16 @@ export default function DeckDiff() {
     }
   }, [hoveredCard]);
 
+  useEffect(() => {
+    // Prefetch card info for all cards in differences
+    differences.forEach(diff => {
+      if (!cardImages[diff.card]) {
+        fetchCardInfosOnHover(diff.card);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [differences]);
+
   function handleMouseMove(e) {
     const container = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - container.left + 20; // Offset so the image doesn't cover the cursor
@@ -130,6 +150,7 @@ export default function DeckDiff() {
               eur: data.prices?.eur || "N/A",
               usd: data.prices?.usd || "N/A",
             },
+            type_line: data.type_line || "Unknown",
           },
         }));
       } catch {
@@ -168,6 +189,24 @@ export default function DeckDiff() {
     navigator.clipboard.writeText(removedCards).then(() => {
       showNotification("Removed cards copied to clipboard!");
     });
+  }
+
+  function groupByType(cards) {
+    const typeGroups = {};
+    cards.forEach((diff) => {
+      const typeLine = cardImages[diff.card]?.type_line || "Unknown";
+      let group = "Other";
+      if (typeLine.includes("Land")) group = "Lands";
+      else if (typeLine.includes("Creature")) group = "Creatures";
+      else if (typeLine.includes("Planeswalker")) group = "Planeswalkers";
+      else if (typeLine.includes("Artifact")) group = "Artifacts";
+      else if (typeLine.includes("Enchantment")) group = "Enchantments";
+      else if (typeLine.includes("Instant")) group = "Instants";
+      else if (typeLine.includes("Sorcery")) group = "Sorceries";
+      if (!typeGroups[group]) typeGroups[group] = [];
+      typeGroups[group].push(diff);
+    });
+    return typeGroups;
   }
 
   return (
@@ -250,28 +289,32 @@ export default function DeckDiff() {
                 <Clipboard size={16} /> {/* Clipboard icon */}
               </button>
             </div>
-            <ul className="mt-2 font-mono">
-              {differences
-                .filter((diff) => diff.type === "added")
-                .map((diff, index) => (
-                  <li
-                    key={index}
-                    className={`${
-                      cardImages[diff.card] === null
-                        ? "underline decoration-red-500"
-                        : ""
-                    }`}
-                    onMouseEnter={() => {
-                      setHoveredCard(diff.card);
-                      fetchCardInfosOnHover(diff.card);
-                    }}
-                    onMouseLeave={() => setHoveredCard(null)}
-                  >
-                    <span className="text-green-500 unselectable">+ </span>
-                    <span className="text-green-500">{diff.count} {diff.card}</span>
-                  </li>
-                ))}
-            </ul>
+            {CARD_TYPE_ORDER.map((group) => {
+              const addedGroups = groupByType(differences.filter((diff) => diff.type === "added"));
+              return (
+                addedGroups[group] && addedGroups[group].length > 0 && (
+                  <div key={group}>
+                    <h4 className="font-semibold mt-2 unselectable">{group}</h4>
+                    <ul className="font-mono">
+                      {addedGroups[group].map((diff, index) => (
+                        <li
+                          key={index}
+                          className={`${cardImages[diff.card] === null ? "underline decoration-red-500" : ""}`}
+                          onMouseEnter={() => {
+                            setHoveredCard(diff.card);
+                            fetchCardInfosOnHover(diff.card);
+                          }}
+                          onMouseLeave={() => setHoveredCard(null)}
+                        >
+                          <span className="text-green-500 unselectable">+ </span>
+                          <span className="text-green-500">{diff.count} {diff.card}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )
+              );
+            })}
           </div>
           <div className="w-full md:w-1/2">
             <div className="flex justify-between items-center">
@@ -285,33 +328,37 @@ export default function DeckDiff() {
               <button
                 className="bg-gray-500 text-white p-1 rounded text-sm flex items-center"
                 onClick={copyRemovedCardsToClipboard}
-                title="Copy removed cards to clipboard" // Tooltip
+                title="Copy removed cards to clipboard"
               >
-                <Clipboard size={16} /> {/* Clipboard icon */}
+                <Clipboard size={16} />
               </button>
             </div>
-            <ul className="mt-2 font-mono">
-              {differences
-                .filter((diff) => diff.type === "removed")
-                .map((diff, index) => (
-                  <li
-                    key={index}
-                    className={`${
-                      cardImages[diff.card] === null
-                        ? "underline decoration-red-500"
-                        : ""
-                    }`}
-                    onMouseEnter={() => {
-                      setHoveredCard(diff.card);
-                      fetchCardInfosOnHover(diff.card);
-                    }}
-                    onMouseLeave={() => setHoveredCard(null)}
-                  >
-                    <span className="text-red-500 unselectable">- </span>
-                    <span className="text-red-500">{diff.count} {diff.card}</span>
-                  </li>
-                ))}
-            </ul>
+            {CARD_TYPE_ORDER.map((group) => {
+              const removedGroups = groupByType(differences.filter((diff) => diff.type === "removed"));
+              return (
+                removedGroups[group] && removedGroups[group].length > 0 && (
+                  <div key={group}>
+                    <h4 className="font-semibold mt-2 unselectable">{group}</h4>
+                    <ul className="font-mono">
+                      {removedGroups[group].map((diff, index) => (
+                        <li
+                          key={index}
+                          className={`${cardImages[diff.card] === null ? "underline decoration-red-500" : ""}`}
+                          onMouseEnter={() => {
+                            setHoveredCard(diff.card);
+                            fetchCardInfosOnHover(diff.card);
+                          }}
+                          onMouseLeave={() => setHoveredCard(null)}
+                        >
+                          <span className="text-red-500 unselectable">- </span>
+                          <span className="text-red-500">{diff.count} {diff.card}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )
+              );
+            })}
           </div>
         </div>
         {showSimilarities && (
@@ -336,33 +383,37 @@ export default function DeckDiff() {
                     showNotification("Cards in common copied to clipboard!");
                   });
                 }}
-                title="Copy cards in common to clipboard" // Tooltip
+                title="Copy cards in common to clipboard"
               >
-                <Clipboard size={16} /> {/* Clipboard icon */}
+                <Clipboard size={16} />
               </button>
             </div>
-            <ul className="mt-2 font-mono">
-              {differences
-                .filter((diff) => diff.type === "same")
-                .map((diff, index) => (
-                  <li
-                    key={index}
-                    className={`${
-                      cardImages[diff.card] === null
-                        ? "underline decoration-red-500"
-                        : ""
-                    }`}
-                    onMouseEnter={() => {
-                      setHoveredCard(diff.card);
-                      fetchCardInfosOnHover(diff.card);
-                    }}
-                    onMouseLeave={() => setHoveredCard(null)}
-                  >
-                    <span className="text-yellow-500 unselectable">= </span>
-                    <span className="text-yellow-500">{diff.count} {diff.card}</span>
-                  </li>
-                ))}
-            </ul>
+            {CARD_TYPE_ORDER.map((group) => {
+              const inCommonGroups = groupByType(differences.filter((diff) => diff.type === "same"));
+              return (
+                inCommonGroups[group] && inCommonGroups[group].length > 0 && (
+                  <div key={group}>
+                    <h4 className="font-semibold mt-2 unselectable">{group}</h4>
+                    <ul className="font-mono">
+                      {inCommonGroups[group].map((diff, index) => (
+                        <li
+                          key={index}
+                          className={`${cardImages[diff.card] === null ? "underline decoration-red-500" : ""}`}
+                          onMouseEnter={() => {
+                            setHoveredCard(diff.card);
+                            fetchCardInfosOnHover(diff.card);
+                          }}
+                          onMouseLeave={() => setHoveredCard(null)}
+                        >
+                          <span className="text-yellow-500 unselectable">= </span>
+                          <span className="text-yellow-500">{diff.count} {diff.card}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )
+              );
+            })}
           </div>
         )}
       </div>
