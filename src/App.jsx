@@ -294,7 +294,7 @@ export default function DeckDiff() {
               return (
                 addedGroups[group] && addedGroups[group].length > 0 && (
                   <div key={group}>
-                    <h4 className="font-semibold mt-2 unselectable">{group}</h4>
+                    <h4 className="font-semibold mt-2 unselectable">{group} ({addedGroups[group].length}):</h4>
                     <ul className="font-mono">
                       {addedGroups[group].map((diff, index) => (
                         <li
@@ -338,7 +338,7 @@ export default function DeckDiff() {
               return (
                 removedGroups[group] && removedGroups[group].length > 0 && (
                   <div key={group}>
-                    <h4 className="font-semibold mt-2 unselectable">{group}</h4>
+                    <h4 className="font-semibold mt-2 unselectable">{group} ({removedGroups[group].length}):</h4>
                     <ul className="font-mono">
                       {removedGroups[group].map((diff, index) => (
                         <li
@@ -393,7 +393,7 @@ export default function DeckDiff() {
               return (
                 inCommonGroups[group] && inCommonGroups[group].length > 0 && (
                   <div key={group}>
-                    <h4 className="font-semibold mt-2 unselectable">{group}</h4>
+                    <h4 className="font-semibold mt-2 unselectable">{group} ({inCommonGroups[group].length}):</h4>
                     <ul className="font-mono">
                       {inCommonGroups[group].map((diff, index) => (
                         <li
